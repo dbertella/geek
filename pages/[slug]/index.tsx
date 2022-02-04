@@ -1,15 +1,17 @@
 import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
-import { COLLECTION_ENDPOINT, recursiveFetchAndWait } from "../bggApis";
-import { Game } from "../bggApis/types";
-import styles from "../styles/Home.module.css";
+import { COLLECTION_ENDPOINT, recursiveFetchAndWait } from "../../bggApis";
+import { Game } from "../../bggApis/types";
+import { Box, NavBar } from "../../components";
+import { BackButton } from "../../components/BackButton";
 
 const Collection: NextPage<{
   data: Game[];
   slug: string;
 }> = ({ data, slug }) => {
   return (
-    <div className={styles.container}>
+    <Box>
+      <BackButton />
       <Head>
         <title>Awesome Collection - {slug}</title>
         <meta name="description" content="Generated from bgg apis" />
@@ -17,7 +19,7 @@ const Collection: NextPage<{
       </Head>
 
       {data.map((d) => (
-        <div key={d.$.id}>
+        <Box key={d.$.id}>
           {d.statistics[0].ratings[0].ranks[0].rank[0].$.value}
           <img src={d.thumbnail[0]} alt="" />
 
@@ -28,9 +30,10 @@ const Collection: NextPage<{
           <p>Max Players {d.maxplayers[0].$.value}</p>
           <p>Play Time {d.maxplaytime[0].$.value}</p>
           <p>Weight {d.statistics[0].ratings[0].averageweight[0].$.value}</p>
-        </div>
+        </Box>
       ))}
-    </div>
+      <NavBar />
+    </Box>
   );
 };
 

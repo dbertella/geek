@@ -6,6 +6,7 @@ export const THING_ITEMS_ENDPOINT =
   "https://boardgamegeek.com/xmlapi2/thing?stats=1&id=";
 export const COLLECTION_ENDPOINT =
   "https://api.geekdo.com/xmlapi2/collection?own=1&stats=1&excludesubtype=boardgameexpansion&username=";
+export const PLAYS_ENDPOINT = "https://api.geekdo.com/xmlapi2/plays?username=";
 
 /*******************************
 New function to call setTimeout otherwise recursiveFetchAndWait() would be run again
@@ -13,6 +14,25 @@ when you pass it to the default JS setTimeout function because it has a paramete
 ********************************/
 export const setTimeoutAsCallback = (callback: any) => {
   setTimeout(callback, 5000);
+};
+
+export const getBggData = async <T extends any>(url: string) => {
+  let plays = {};
+  try {
+    const response = await fetch(url);
+    if (response.status === 200) {
+      // Checking for response code 200
+      const data = await response.text();
+      XML2JS.parseString(data, (err, result) => {
+        // xml2js: converts XML to JSON
+        plays = result;
+      });
+    } else if (response.status === 202) {
+      // If the status response was 202 (API still retrieving data), call the fetch again after a set timeout
+      setTimeoutAsCallback(() => recursiveFetchAndWait(url));
+    }
+  } catch (e) {}
+  return plays as T;
 };
 
 export const recursiveFetchAndWait = async (url: string) => {

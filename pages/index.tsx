@@ -1,14 +1,13 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
-import styles from "../styles/Home.module.css";
 import { useRouter } from "next/router";
 
 const Home: NextPage = () => {
   const router = useRouter();
   const [name, setName] = useState("");
   return (
-    <div className={styles.container}>
+    <div>
       <Head>
         <title>Awesome Collection</title>
         <meta name="description" content="Generated from bgg apis" />
