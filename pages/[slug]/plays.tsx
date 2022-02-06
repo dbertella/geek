@@ -1,8 +1,9 @@
 import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
+import Link from "next/link";
 import { getBggData, PLAYS_ENDPOINT } from "../../bggApis";
 import { Plays } from "../../bggApis/playsTypes";
-import { Box, NavBar, Text } from "../../components";
+import { Box, Flex, NavBar, Text } from "../../components";
 import { BackButton } from "../../components/BackButton";
 
 const Collection: NextPage<{
@@ -20,20 +21,37 @@ const Collection: NextPage<{
 
       <Box>Total: {plays.$.total}</Box>
       {plays.play.map((d) => (
-        <Box key={d.$.id}>
+        <Box key={d.$.id + "d"}>
           <Text>{d.$.date}</Text>
           <Text>{d.$.quantity}</Text>
           {d.item.map((game) => (
-            <Text key={game.$.objectid}>{game.$.name}</Text>
+            <Text key={game.$.objectid + "c"}>{game.$.name}</Text>
           ))}
           {d?.players?.map(({ player }) =>
-            player.map((p) => (
-              <Box key={p.$.userid}>
-                {p.$.name}
-                {p.$.username && ` (${p.$.username})`}
-                <Text>Win: {p.$.win}</Text>
-                <Text>Rating: {p.$.rating}</Text>
-                <Text>Score: {p.$.score}</Text>
+            player.map((p, i) => (
+              <Box key={p.$.userid + i || p.$.name + i}>
+                <Flex gap="2" align="center">
+                  <Text>
+                    # {i + 1} - {p.$.name}
+                  </Text>
+                  {p.$.username && (
+                    <Text>
+                      (
+                      <Link
+                        href={{
+                          pathname: "/[slug]",
+                          query: { slug: p.$.username },
+                        }}
+                      >
+                        <a>{p.$.username}</a>
+                      </Link>
+                      )
+                    </Text>
+                  )}
+                  {!!Number(p.$.rating) && <Text>Rating: {p.$.rating}</Text>}
+                  {!!Number(p.$.score) && <Text>Score: {p.$.score}</Text>}
+                  {!!Number(p.$.win) && <Text>Win</Text>}
+                </Flex>
               </Box>
             ))
           )}
