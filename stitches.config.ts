@@ -15,7 +15,7 @@ export const {
   theme: {
     fonts: {
       untitled: "Untitled Sans, -apple-system, system-ui, sans-serif",
-      mono: "Söhne Mono, menlo, monospace",
+      quantico: "Quantico, Söhne Mono, menlo, monospace",
     },
     space: {
       1: "5px",

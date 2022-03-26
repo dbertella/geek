@@ -1,11 +1,12 @@
 import { LightningBoltIcon, MixIcon } from "@radix-ui/react-icons";
 import NavLink, { LinkProps } from "next/link";
-import { Flex, Box, Text } from ".";
+import { Flex, Text } from ".";
 import { useRouter } from "next/router";
 import useDetectKeyboardOpen from "use-detect-keyboard-open";
 
 const uiLink = {
-  textAlign: "center",
+  justifyContent: "center",
+  alignItems: "center",
   flex: 1,
   color: "$colors$gray9",
   textDecoration: "none",
@@ -21,13 +22,13 @@ const Link = ({
   icon: typeof MixIcon;
 } & LinkProps) => (
   <NavLink href={href}>
-    <Box css={uiLink}>
+    <Flex css={uiLink}>
       <Icon width={30} height={30} />
 
       <Text size="1" css={{ color: "inherit" }}>
         {title}
       </Text>
-    </Box>
+    </Flex>
   </NavLink>
 );
 

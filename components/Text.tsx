@@ -6,7 +6,6 @@ export const Text = styled("span", {
   margin: "0",
   fontWeight: 400,
   fontVariantNumeric: "tabular-nums",
-  display: "block",
 
   variants: {
     size: {
@@ -61,6 +60,10 @@ export const Text = styled("span", {
       },
       contrast: {
         color: "$text",
+      },
+      number: {
+        fontFamily: "$quantico",
+        fontWeight: 700,
       },
     },
   },

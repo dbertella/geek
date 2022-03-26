@@ -7,3 +7,6 @@ export * from "./Text";
 export * from "./InputBase";
 export * from "./Forms";
 export * from "./NavBar";
+export * from "./Image";
+export * from "./Heading";
+export * from "./Layout";

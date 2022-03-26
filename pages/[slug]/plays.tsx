@@ -1,65 +1,76 @@
+import dayjs from "dayjs";
 import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { getBggData, PLAYS_ENDPOINT } from "../../bggApis";
 import { Plays } from "../../bggApis/playsTypes";
-import { Box, Flex, NavBar, Text } from "../../components";
-import { BackButton } from "../../components/BackButton";
+import { Box, Flex, Heading, Layout, NavBar, Text } from "../../components";
 
 const Collection: NextPage<{
   plays: Plays;
   slug: string;
 }> = ({ plays, slug }) => {
   return (
-    <Box>
-      <BackButton />
+    <>
       <Head>
-        <title>Awesome Collection - {slug}</title>
+        <title>Awesome Plays - {slug}</title>
         <meta name="description" content="Generated from bgg apis" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+      <Layout>
+        <Heading>{slug} Plays</Heading>
+        <Heading variant="h3">Total: {plays.$.total}</Heading>
+        {plays.play.map((d) => (
+          <Box key={d.$.id + "d"}>
+            <Flex justify="end">
+              <Text size="2" color="gray10">
+                {dayjs(d.$.date).format("ddd DD MMM YY")}
+              </Text>
+            </Flex>
 
-      <Box>Total: {plays.$.total}</Box>
-      {plays.play.map((d) => (
-        <Box key={d.$.id + "d"}>
-          <Text>{d.$.date}</Text>
-          <Text>{d.$.quantity}</Text>
-          {d.item.map((game) => (
-            <Text key={game.$.objectid + "c"}>{game.$.name}</Text>
-          ))}
-          {d?.players?.map(({ player }) =>
-            player.map((p, i) => (
-              <Box key={p.$.userid + i || p.$.name + i}>
-                <Flex gap="2" align="center">
-                  <Text>
-                    # {i + 1} - {p.$.name}
-                  </Text>
-                  {p.$.username && (
+            {d.item.map((game) => (
+              <Heading key={game.$.objectid + "c"} variant="h5">
+                {game.$.name}
+                {Number(d.$.quantity) > 1 && <Text> x{d.$.quantity}</Text>}
+              </Heading>
+            ))}
+            {d?.players?.map(({ player }) =>
+              player.map((p, i) => (
+                <Box key={p.$.userid + i || p.$.name + i}>
+                  <Flex gap="2" align="center">
                     <Text>
-                      (
-                      <Link
-                        href={{
-                          pathname: "/[slug]",
-                          query: { slug: p.$.username },
-                        }}
-                      >
-                        <a>{p.$.username}</a>
-                      </Link>
-                      )
+                      <Text variant="number"># {++i}</Text> - {p.$.name}
                     </Text>
-                  )}
-                  {!!Number(p.$.rating) && <Text>Rating: {p.$.rating}</Text>}
-                  {!!Number(p.$.score) && <Text>Score: {p.$.score}</Text>}
-                  {!!Number(p.$.win) && <Text>Win</Text>}
-                </Flex>
-              </Box>
-            ))
-          )}
-          <hr />
-        </Box>
-      ))}
+                    {p.$.username && (
+                      <Text>
+                        (
+                        <Link
+                          href={{
+                            pathname: "/[slug]",
+                            query: { slug: p.$.username },
+                          }}
+                          passHref
+                        >
+                          <Text as="a" css={{ color: "$blue" }}>
+                            {p.$.username}
+                          </Text>
+                        </Link>
+                        )
+                      </Text>
+                    )}
+                    {!!Number(p.$.rating) && <Text>Rating: {p.$.rating}</Text>}
+                    {!!Number(p.$.score) && <Text>Score: {p.$.score}</Text>}
+                    {!!Number(p.$.win) && <Text variant="number">Win</Text>}
+                  </Flex>
+                </Box>
+              ))
+            )}
+            <hr />
+          </Box>
+        ))}
+      </Layout>
       <NavBar />
-    </Box>
+    </>
   );
 };
 
