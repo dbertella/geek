@@ -7,6 +7,7 @@ export const THING_ITEMS_ENDPOINT =
 export const COLLECTION_ENDPOINT =
   "https://api.geekdo.com/xmlapi2/collection?own=1&stats=1&excludesubtype=boardgameexpansion&username=";
 export const PLAYS_ENDPOINT = "https://api.geekdo.com/xmlapi2/plays?username=";
+export const BUDDIES_ENDPOINT = "https://api.geekdo.com/xmlapi2//user?buddies=1&name=";
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 

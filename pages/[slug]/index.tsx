@@ -27,7 +27,7 @@ const Collection: NextPage<{
           <meta name="description" content="Generated from bgg apis" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <Heading>{slug} Collection</Heading>
+        <Heading>Collection - {slug}</Heading>
         {data.map((d, i) => (
           <Card key={d.$.id + i} css={{ p: "$1", m: "$1" }}>
             <Flex

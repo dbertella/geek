@@ -18,11 +18,19 @@ const Collection: NextPage<{
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Layout>
-        <Heading>{slug} Plays</Heading>
-        <Heading variant="h3">Total: {plays.$.total}</Heading>
-        {plays.play.map((d) => (
-          <Box key={d.$.id + "d"}>
-            <Flex justify="end">
+        <Heading>Plays - {slug}</Heading>
+        <Heading variant="h6">Total Plays: {plays.$.total}</Heading>
+        {plays.play?.map((d) => (
+          <Flex
+            key={d.$.id + "d"}
+            gap="2"
+            direction="column"
+            css={{ borderBottom: "1px solid $gray10", pb: "$2" }}
+          >
+            <Flex justify="between">
+              <Text size="2" color="gray10">
+                {d.$.location}
+              </Text>
               <Text size="2" color="gray10">
                 {dayjs(d.$.date).format("ddd DD MMM YY")}
               </Text>
@@ -34,10 +42,14 @@ const Collection: NextPage<{
                 {Number(d.$.quantity) > 1 && <Text> x{d.$.quantity}</Text>}
               </Heading>
             ))}
-            {d?.players?.map(({ player }) =>
-              player.map((p, i) => (
-                <Box key={p.$.userid + i || p.$.name + i}>
-                  <Flex gap="2" align="center">
+            <Flex direction="column" gap="2">
+              {d?.players?.map(({ player }) =>
+                player.map((p, i) => (
+                  <Flex
+                    key={p.$.userid + i || p.$.name + i}
+                    gap="2"
+                    align="center"
+                  >
                     <Text>
                       <Text variant="number"># {++i}</Text> - {p.$.name}
                     </Text>
@@ -62,11 +74,10 @@ const Collection: NextPage<{
                     {!!Number(p.$.score) && <Text>Score: {p.$.score}</Text>}
                     {!!Number(p.$.win) && <Text variant="number">Win</Text>}
                   </Flex>
-                </Box>
-              ))
-            )}
-            <hr />
-          </Box>
+                ))
+              )}
+            </Flex>
+          </Flex>
         ))}
       </Layout>
       <NavBar />

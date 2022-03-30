@@ -1,4 +1,4 @@
-import { LightningBoltIcon, MixIcon } from "@radix-ui/react-icons";
+import { LightningBoltIcon, MixIcon, PersonIcon } from "@radix-ui/react-icons";
 import NavLink, { LinkProps } from "next/link";
 import { Flex, Text } from ".";
 import { useRouter } from "next/router";
@@ -59,6 +59,14 @@ export const NavBar = () => {
         }}
         icon={MixIcon}
         title="Plays"
+      />
+      <Link
+        href={{
+          pathname: "/[slug]/buddies",
+          query,
+        }}
+        icon={PersonIcon}
+        title="Buddies"
       />
     </Flex>
   );

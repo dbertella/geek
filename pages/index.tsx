@@ -2,7 +2,7 @@ import type { NextPage } from "next";
 import Head from "next/head";
 import { useState } from "react";
 import { useRouter } from "next/router";
-import { Button, Flex, TextField } from "../components";
+import { Button, Flex, Text, TextField } from "../components";
 
 const Home: NextPage = () => {
   const router = useRouter();
@@ -24,15 +24,16 @@ const Home: NextPage = () => {
           direction="column"
           justify="center"
           align="center"
+          gap="2"
           css={{
             height: "90vh",
           }}
         >
-          <Flex
-            gap="2"
-            justify="center"
-            align="center"
-          >
+          <Text variant="number">
+            This is the start of the journey type a bgg username and start the
+            lookup
+          </Text>
+          <Flex gap="2" justify="center" align="center">
             <TextField
               placeholder="Your BGG username"
               value={name}
