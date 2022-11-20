@@ -1,4 +1,9 @@
-import { LightningBoltIcon, MixIcon, PersonIcon } from "@radix-ui/react-icons";
+import {
+  LightningBoltIcon,
+  MixIcon,
+  PersonIcon,
+  ExitIcon,
+} from "@radix-ui/react-icons";
 import NavLink, { LinkProps } from "next/link";
 import { Flex, Text } from ".";
 import { useRouter } from "next/router";
@@ -21,15 +26,17 @@ const Link = ({
   title: string;
   icon: typeof MixIcon;
 } & LinkProps) => (
-  <NavLink href={href}>
-    <Flex css={uiLink}>
-      <Icon width={30} height={30} />
+  <Flex css={uiLink}>
+    <NavLink href={href}>
+      <Flex css={uiLink}>
+        <Icon width={30} height={30} />
 
-      <Text size="1" css={{ color: "inherit" }}>
-        {title}
-      </Text>
-    </Flex>
-  </NavLink>
+        <Text size="1" css={{ color: "inherit" }}>
+          {title}
+        </Text>
+      </Flex>
+    </NavLink>
+  </Flex>
 );
 
 export const NavBar = () => {
@@ -46,7 +53,7 @@ export const NavBar = () => {
     >
       <Link
         href={{
-          pathname: "/[slug]",
+          pathname: "/[slug]/collection",
           query,
         }}
         icon={LightningBoltIcon}
@@ -54,7 +61,7 @@ export const NavBar = () => {
       />
       <Link
         href={{
-          pathname: "/[slug]/plays",
+          pathname: "/[slug]",
           query,
         }}
         icon={MixIcon}
@@ -67,6 +74,14 @@ export const NavBar = () => {
         }}
         icon={PersonIcon}
         title="Buddies"
+      />
+      <Link
+        href={{
+          pathname: "/logout",
+          query,
+        }}
+        icon={ExitIcon}
+        title="Logout"
       />
     </Flex>
   );

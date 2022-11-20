@@ -1,76 +1,115 @@
+import Cookies from "cookies";
+import dayjs from "dayjs";
 import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
-import { COLLECTION_ENDPOINT, recursiveFetchAndWait } from "../../bggApis";
-import { Game } from "../../bggApis/types";
-import {
-  Box,
-  NavBar,
-  Image,
-  Flex,
-  Card,
-  Heading,
-  Layout,
-  Text,
-} from "../../components";
-import { BackButton } from "../../components/BackButton";
+import Link from "next/link";
+import { getBggData, PLAYS_ENDPOINT } from "../../bggApis";
+import { Plays, PlayerEntity } from "../../bggApis/playsTypes";
+import { Button, Flex, Heading, Layout, NavBar, Text } from "../../components";
+
+const fetcher = (body: {
+  sessionCookie: string;
+  gameId: string;
+  playdate: string;
+  players: PlayerEntity[];
+  location: string;
+}) => {
+  fetch("/api/upload", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+};
 
 const Collection: NextPage<{
-  data: Game[];
+  plays: Plays;
   slug: string;
-}> = ({ data, slug }) => {
+  sessionCookie: string | null;
+}> = ({ plays, slug, sessionCookie }) => {
   return (
     <>
-      <BackButton />
+      <Head>
+        <title>Awesome Plays - {slug}</title>
+        <meta name="description" content="Generated from bgg apis" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       <Layout>
-        <Head>
-          <title>Awesome Collection - {slug}</title>
-          <meta name="description" content="Generated from bgg apis" />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
-        <Heading>Collection - {slug}</Heading>
-        {data.map((d, i) => (
-          <Card key={d.$.id + i} css={{ p: "$1", m: "$1" }}>
-            <Flex
-              css={{
-                position: "relative",
-                borderBottom: "1px solid",
-                borderColor: "$gray5",
-                pb: "$1",
-              }}
-              justify="center"
-            >
-              <Box css={{ position: "absolute", top: 0, right: 0 }}>
-                <Text variant="number">
-                  #{d.statistics[0].ratings[0].ranks[0].rank[0].$.value}
-                </Text>
-              </Box>
-              <Image src={d.thumbnail[0]} alt="" />
+        <Heading>Plays - {slug}</Heading>
+        <Heading variant="h6">Total Plays: {plays.$.total}</Heading>
+        {plays.play?.map((d) => (
+          <Flex
+            key={d.$.id + "d"}
+            gap="2"
+            direction="column"
+            css={{ borderBottom: "1px solid $gray10", pb: "$2" }}
+          >
+            <Flex justify="between">
+              <Text size="2" color="gray10">
+                {d.$.location}
+              </Text>
+              <Text size="2" color="gray10">
+                {dayjs(d.$.date).format("ddd DD MMM YY")}
+              </Text>
             </Flex>
-            <Heading variant="h3">{d.name[0].$.value}</Heading>
-            <Box>
-              Avg Rating{" "}
-              <Text variant="number">
-                {d.statistics[0].ratings[0].average[0].$.value}
-              </Text>
-            </Box>
-            <Box>
-              Min Players{" "}
-              <Text variant="number">{d.minplayers[0].$.value}</Text>
-            </Box>
-            <Box>
-              Max Players{" "}
-              <Text variant="number">{d.maxplayers[0].$.value}</Text>
-            </Box>
-            <Box>
-              Play Time <Text variant="number">{d.maxplaytime[0].$.value}</Text>
-            </Box>
-            <Box>
-              Weight{" "}
-              <Text variant="number">
-                {d.statistics[0].ratings[0].averageweight[0].$.value}
-              </Text>
-            </Box>
-          </Card>
+
+            {sessionCookie && (
+              <Button
+                onClick={() =>
+                  fetcher({
+                    sessionCookie,
+                    gameId: d.item[0].$.objectid,
+                    players: d.players?.[0]?.player ?? [],
+                    location: d.$.location,
+                    playdate: d.$.date,
+                  })
+                }
+              >
+                Copy this play play
+              </Button>
+            )}
+
+            {d.item.map((game) => (
+              <Heading key={game.$.objectid + "c"} variant="h5">
+                {game.$.name}
+                {Number(d.$.quantity) > 1 && <Text> x{d.$.quantity}</Text>}
+              </Heading>
+            ))}
+            <Flex direction="column" gap="2">
+              {d?.players?.map(({ player }) =>
+                player.map((p, i) => (
+                  <Flex
+                    key={p.$.userid + i || p.$.name + i}
+                    gap="2"
+                    align="center"
+                  >
+                    <Text>
+                      <Text variant="number"># {++i}</Text> - {p.$.name}
+                    </Text>
+                    {p.$.username && (
+                      <Text>
+                        (
+                        <Link
+                          href={{
+                            pathname: "/[slug]/collection",
+                            query: { slug: p.$.username },
+                          }}
+                          passHref
+                        >
+                          <Text css={{ color: "$blue" }}>{p.$.username}</Text>
+                        </Link>
+                        )
+                      </Text>
+                    )}
+                    {!!Number(p.$.rating) && <Text>Rating: {p.$.rating}</Text>}
+                    {!!Number(p.$.score) && <Text>Score: {p.$.score}</Text>}
+                    {!!Number(p.$.win) && <Text variant="number">Win</Text>}
+                  </Flex>
+                ))
+              )}
+            </Flex>
+          </Flex>
         ))}
       </Layout>
       <NavBar />
@@ -80,10 +119,18 @@ const Collection: NextPage<{
 
 export default Collection;
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const slug = context.query.slug;
-  const data = await recursiveFetchAndWait(COLLECTION_ENDPOINT + slug);
+export const getServerSideProps: GetServerSideProps = async ({
+  req,
+  res,
+  query,
+}) => {
+  const slug = query.slug;
+  const { plays } = await getBggData<{ plays: Plays }>(PLAYS_ENDPOINT + slug);
+
+  const cookies = new Cookies(req, res);
+  const sessionCookie = cookies.get("sessionCookie") ?? null;
+
   return {
-    props: { data, slug },
+    props: { plays, slug, sessionCookie },
   };
 };

@@ -36,25 +36,21 @@ const Collection: NextPage<{
               <Box css={{ flex: 1 }}>{b.$.name}</Box>
               <Link
                 href={{
+                  pathname: "/[slug]/collection",
+                  query: { slug: b.$.name },
+                }}
+                passHref
+              >
+                <Text css={{ color: "$blue" }}>Collection</Text>
+              </Link>
+              <Link
+                href={{
                   pathname: "/[slug]",
                   query: { slug: b.$.name },
                 }}
                 passHref
               >
-                <Text as="a" css={{ color: "$blue" }}>
-                  Collection
-                </Text>
-              </Link>
-              <Link
-                href={{
-                  pathname: "/[slug]/plays",
-                  query: { slug: b.$.name },
-                }}
-                passHref
-              >
-                <Text as="a" css={{ color: "$blue" }}>
-                  Plays
-                </Text>
+                <Text css={{ color: "$blue" }}>Plays</Text>
               </Link>
               <Link
                 href={{
@@ -63,9 +59,7 @@ const Collection: NextPage<{
                 }}
                 passHref
               >
-                <Text as="a" css={{ color: "$blue" }}>
-                  Buddies
-                </Text>
+                <Text css={{ color: "$blue" }}>Buddies</Text>
               </Link>
             </Flex>
           </Box>
