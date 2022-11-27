@@ -11,5 +11,9 @@ export default async function handler(
   res: NextApiResponse<Data>
 ) {
   const response = await uploadToBgg(req.body);
-  res.status(200).json({ response });
+  if (response.error) {
+    res.status(500).json({ response });
+  } else {
+    res.status(200).json({ response });
+  }
 }

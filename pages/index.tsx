@@ -56,7 +56,11 @@ const Home: NextPage = () => {
           </Text>
           <Flex gap="2" justify="center" align="center" direction="column">
             <TextField placeholder="Your BGG username" name="username" />
-            <TextField placeholder="Your BGG password" name="password" />
+            <TextField
+              placeholder="Your BGG password"
+              name="password"
+              type="password"
+            />
             <Text>The password would never be stored by this service</Text>
             <Button>Go</Button>
           </Flex>
@@ -68,7 +72,7 @@ const Home: NextPage = () => {
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const cookies = new Cookies(req, res);
-  const username = cookies.get("user") ?? null;
+  const username = cookies.get("bggusername") ?? null;
   if (username) {
     return {
       redirect: {

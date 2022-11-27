@@ -5,7 +5,6 @@ import createHttpError from "http-errors";
 import { loginToBgg } from "../../bggApis/newPlay";
 
 type Data = {
-  cookie: string;
   name: string;
 };
 
@@ -17,11 +16,14 @@ export default async function handler(
   const cookies = new Cookies(req, res);
 
   // Set a cookie
-  cookies.set("sessionCookie", sessionCookie, {
+  cookies.set("SessionID", sessionCookie.SessionID, {
     httpOnly: true, // true by default
   });
-  cookies.set("user", req.body.username, {
+  cookies.set("bggusername", sessionCookie.bggusername, {
     httpOnly: true,
   });
-  res.status(200).json({ cookie: sessionCookie, name: req.body.username });
+  cookies.set("bggpassword", sessionCookie.bggpassword, {
+    httpOnly: true,
+  });
+  res.status(200).json({ name: req.body.username });
 }

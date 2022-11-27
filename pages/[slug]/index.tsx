@@ -28,15 +28,16 @@ const Collection: NextPage<{
   slug: string;
   sessionCookie: string | null;
 }> = ({ plays, slug, sessionCookie }) => {
+  const title = `Plays - ${slug}`;
   return (
     <>
       <Head>
-        <title>Awesome Plays - {slug}</title>
+        <title>{title}</title>
         <meta name="description" content="Generated from bgg apis" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Layout>
-        <Heading>Plays - {slug}</Heading>
+        <Heading>{title}</Heading>
         <Heading variant="h6">Total Plays: {plays.$.total}</Heading>
         {plays.play?.map((d) => (
           <Flex
@@ -128,7 +129,9 @@ export const getServerSideProps: GetServerSideProps = async ({
   const { plays } = await getBggData<{ plays: Plays }>(PLAYS_ENDPOINT + slug);
 
   const cookies = new Cookies(req, res);
-  const sessionCookie = cookies.get("sessionCookie") ?? null;
+  let sessionCookie = `bggusername=${cookies.get("bggusername") ?? ""};`;
+  sessionCookie += ` bggpassword=${cookies.get("bggpassword") ?? ""};`;
+  sessionCookie += ` SessionID=${cookies.get("SessionID") ?? ""};`;
 
   return {
     props: { plays, slug, sessionCookie },
