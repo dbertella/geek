@@ -7,8 +7,9 @@ const Logout: NextPage = () => {
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   const cookies = new Cookies(req, res);
-  cookies.set("user");
-  cookies.set("sessionCookie");
+  cookies.set("bggusername");
+  cookies.set("bggpassword");
+  cookies.set("SessionID");
   return {
     redirect: {
       destination: "/",

@@ -1,8 +1,7 @@
-import Cookies from "cookies";
 import { PlayerEntity } from "./playsTypes";
 
 const BGGLOGIN_URL = "https://boardgamegeek.com/login/api/v1";
-const BGGUPLOAD_URL = "https://boardgamegeek.com/geekplay.php";
+export const BGGUPLOAD_URL = "https://boardgamegeek.com/geekplay.php";
 
 type Player =
   | {
@@ -103,12 +102,14 @@ export const uploadToBgg = async ({
   playdate,
   players,
   location,
+  playid,
 }: {
   sessionCookie: string;
   gameId: string;
   playdate: string;
   players: PlayerEntity[];
   location: string;
+  playid?: string;
 }) => {
   const now = new Date();
 
@@ -119,6 +120,7 @@ export const uploadToBgg = async ({
     date: now.toISOString(),
     location,
     players: players.map((player) => player.$),
+    playid,
   };
 
   const response = await fetch(BGGUPLOAD_URL, {
@@ -135,4 +137,33 @@ export const uploadToBgg = async ({
   console.log({ uploadResponse, gameResultBody });
 
   return uploadResponse;
+};
+
+export const deletePlay = async ({
+  sessionCookie,
+  playid,
+}: {
+  sessionCookie: string;
+  playid: string;
+}) => {
+  try {
+    const response = await fetch(BGGUPLOAD_URL, {
+      headers: {
+        cookie: sessionCookie,
+        "Content-Type": "application/json;charset=UTF-8",
+      },
+      method: "POST",
+      body: JSON.stringify({
+        playid,
+        action: "delete",
+        finalize: 1,
+        B1: "Yes",
+      }),
+    });
+
+    console.log({ response });
+    return {};
+  } catch (error) {
+    return { error };
+  }
 };

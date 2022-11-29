@@ -1,3 +1,4 @@
+import { CopyIcon, Cross2Icon, Pencil2Icon } from "@radix-ui/react-icons";
 import Cookies from "cookies";
 import dayjs from "dayjs";
 import type { GetServerSideProps, NextPage } from "next";
@@ -5,7 +6,16 @@ import Head from "next/head";
 import Link from "next/link";
 import { getBggData, PLAYS_ENDPOINT } from "../../bggApis";
 import { Plays, PlayerEntity } from "../../bggApis/playsTypes";
-import { Button, Flex, Heading, Layout, NavBar, Text } from "../../components";
+import {
+  Button,
+  Flex,
+  Heading,
+  Layout,
+  NavBar,
+  Text,
+  TextField,
+} from "../../components";
+import { Popup } from "../../components/Dialog";
 
 const fetcher = (body: {
   sessionCookie: string;
@@ -13,8 +23,19 @@ const fetcher = (body: {
   playdate: string;
   players: PlayerEntity[];
   location: string;
+  playid?: string;
 }) => {
   fetch("/api/upload", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+};
+
+const onDelete = (body: { sessionCookie: string; playid: string }) => {
+  fetch("/api/delete", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -26,8 +47,9 @@ const fetcher = (body: {
 const Collection: NextPage<{
   plays: Plays;
   slug: string;
-  sessionCookie: string | null;
-}> = ({ plays, slug, sessionCookie }) => {
+  sessionCookie: string;
+  loggedInUser: string;
+}> = ({ plays, slug, sessionCookie, loggedInUser }) => {
   const title = `Plays - ${slug}`;
   return (
     <>
@@ -56,19 +78,59 @@ const Collection: NextPage<{
             </Flex>
 
             {sessionCookie && (
-              <Button
-                onClick={() =>
-                  fetcher({
-                    sessionCookie,
-                    gameId: d.item[0].$.objectid,
-                    players: d.players?.[0]?.player ?? [],
-                    location: d.$.location,
-                    playdate: d.$.date,
-                  })
-                }
-              >
-                Copy this play play
-              </Button>
+              <Flex>
+                <Popup
+                  title="Clone this play"
+                  trigger={
+                    <Button
+                    // onClick={() =>
+                    //   fetcher({
+                    //     sessionCookie,
+                    //     gameId: d.item[0].$.objectid,
+                    //     players: d.players?.[0]?.player ?? [],
+                    //     location: d.$.location,
+                    //     playdate: d.$.date,
+                    //   })
+                    // }
+                    >
+                      <CopyIcon aria-label="Clone this play" />
+                      <Text css={{ ml: 2 }}>Clone</Text>
+                    </Button>
+                  }
+                >
+                  <div>modal</div>
+                </Popup>
+                {slug === loggedInUser && (
+                  <>
+                    <Button
+                      onClick={() =>
+                        fetcher({
+                          sessionCookie,
+                          playid: d.$.id,
+                          gameId: d.item[0].$.objectid,
+                          players: d.players?.[0]?.player ?? [],
+                          location: d.$.location,
+                          playdate: d.$.date,
+                        })
+                      }
+                    >
+                      <Pencil2Icon aria-label="Update this play" />
+                      <Text css={{ ml: 2 }}>Update</Text>
+                    </Button>
+                    <Button
+                      onClick={() =>
+                        onDelete({
+                          sessionCookie,
+                          playid: d.$.id,
+                        })
+                      }
+                    >
+                      <Cross2Icon aria-label="Delete this play" />
+                      <Text css={{ ml: 2 }}>Delete</Text>
+                    </Button>
+                  </>
+                )}
+              </Flex>
             )}
 
             {d.item.map((game) => (
@@ -129,11 +191,12 @@ export const getServerSideProps: GetServerSideProps = async ({
   const { plays } = await getBggData<{ plays: Plays }>(PLAYS_ENDPOINT + slug);
 
   const cookies = new Cookies(req, res);
-  let sessionCookie = `bggusername=${cookies.get("bggusername") ?? ""};`;
+  const loggedInUser = cookies.get("bggusername") ?? "";
+  let sessionCookie = `bggusername=${loggedInUser};`;
   sessionCookie += ` bggpassword=${cookies.get("bggpassword") ?? ""};`;
   sessionCookie += ` SessionID=${cookies.get("SessionID") ?? ""};`;
 
   return {
-    props: { plays, slug, sessionCookie },
+    props: { plays, slug, sessionCookie, loggedInUser },
   };
 };
