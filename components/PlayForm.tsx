@@ -3,7 +3,13 @@ import { Flex } from "./Flex";
 import { TextField } from "./Forms";
 import { Text } from "./Text";
 
-export const PlayForm = ({ onSubmit, defaultValues }) => {
+export const PlayForm = ({
+  onSubmit,
+  defaultValues,
+}: {
+  onSubmit: () => void;
+  defaultValues: unknown;
+}) => {
   return (
     <form onSubmit={onSubmit}>
       <Flex
@@ -21,10 +27,7 @@ export const PlayForm = ({ onSubmit, defaultValues }) => {
         </Text>
         <Flex gap="2" justify="center" align="center" direction="column">
           <TextField placeholder="Location" name="location" />
-          <TextField
-            placeholder="Play Date"
-            name="playdate"
-          />
+          <TextField placeholder="Play Date" name="playdate" />
           <Text>The password would never be stored by this service</Text>
           <Button>Go</Button>
         </Flex>
