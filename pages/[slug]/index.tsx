@@ -4,6 +4,8 @@ import dayjs from "dayjs";
 import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
+import { useRouter } from "next/router";
+import React from "react";
 import { getBggData, PLAYS_ENDPOINT } from "../../bggApis";
 import { Plays, PlayerEntity } from "../../bggApis/playsTypes";
 import {
@@ -25,7 +27,7 @@ const fetcher = (body: {
   location: string;
   playid?: string;
 }) => {
-  fetch("/api/upload", {
+  return fetch("/api/upload", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -35,7 +37,7 @@ const fetcher = (body: {
 };
 
 const onDelete = (body: { sessionCookie: string; playid: string }) => {
-  fetch("/api/delete", {
+  return fetch("/api/delete", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -51,6 +53,17 @@ const Collection: NextPage<{
   loggedInUser: string;
 }> = ({ plays, slug, sessionCookie, loggedInUser }) => {
   const title = `Plays - ${slug}`;
+  const router = useRouter();
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+
+  const refreshData = () => {
+    router.replace(router.asPath);
+    setIsRefreshing(true);
+  };
+
+  React.useEffect(() => {
+    setIsRefreshing(false);
+  }, [plays]);
   return (
     <>
       <Head>
@@ -82,23 +95,27 @@ const Collection: NextPage<{
                 <Popup
                   title="Clone this play"
                   trigger={
-                    <Button
-                    // onClick={() =>
-                    //   fetcher({
-                    //     sessionCookie,
-                    //     gameId: d.item[0].$.objectid,
-                    //     players: d.players?.[0]?.player ?? [],
-                    //     location: d.$.location,
-                    //     playdate: d.$.date,
-                    //   })
-                    // }
-                    >
+                    <Button>
                       <CopyIcon aria-label="Clone this play" />
                       <Text css={{ ml: 2 }}>Clone</Text>
                     </Button>
                   }
                 >
-                  <div>modal</div>
+                  <Button
+                    disabled={isRefreshing}
+                    onClick={() => {
+                      fetcher({
+                        sessionCookie,
+                        gameId: d.item[0].$.objectid,
+                        players: d.players?.[0]?.player ?? [],
+                        location: d.$.location,
+                        playdate: d.$.date,
+                      }).then(() => refreshData());
+                    }}
+                  >
+                    <CopyIcon aria-label="Clone this play" />
+                    <Text css={{ ml: 2 }}>Ok</Text>
+                  </Button>
                 </Popup>
                 {slug === loggedInUser && (
                   <>
@@ -118,12 +135,13 @@ const Collection: NextPage<{
                       <Text css={{ ml: 2 }}>Update</Text>
                     </Button>
                     <Button
-                      onClick={() =>
+                      disabled={isRefreshing}
+                      onClick={() => {
                         onDelete({
                           sessionCookie,
                           playid: d.$.id,
-                        })
-                      }
+                        }).then(() => refreshData());
+                      }}
                     >
                       <Cross2Icon aria-label="Delete this play" />
                       <Text css={{ ml: 2 }}>Delete</Text>
