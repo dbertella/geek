@@ -2,12 +2,15 @@ import Cookies from "cookies";
 import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import { useRouter } from "next/router";
+import { useForm } from "react-hook-form";
 import { Button, Flex, Text, TextField } from "../components";
 
-const login = (body: {
+type LoginForm = {
   username: string;
   password: string;
-}): Promise<{ cookie: string; name: string }> => {
+};
+
+const login = (body: LoginForm): Promise<{ cookie: string; name: string }> => {
   return fetch("/api/login", {
     method: "POST",
     headers: {
@@ -19,6 +22,7 @@ const login = (body: {
 
 const Home: NextPage = () => {
   const router = useRouter();
+  const { register, handleSubmit } = useForm<LoginForm>();
   return (
     <div>
       <Head>
@@ -27,19 +31,11 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <form
-        onSubmit={async (e) => {
-          e.preventDefault();
-          const target = e.target as typeof e.target & {
-            username: { value: string };
-            password: { value: string };
-          };
-          await login({
-            username: target.username.value,
-            password: target.password.value,
-          }).then((r) => {
+        onSubmit={handleSubmit((values: LoginForm) =>
+          login(values).then((r) => {
             router.push(`/${r.name}`);
-          });
-        }}
+          })
+        )}
       >
         <Flex
           direction="column"
@@ -55,10 +51,13 @@ const Home: NextPage = () => {
             start
           </Text>
           <Flex gap="2" justify="center" align="center" direction="column">
-            <TextField placeholder="Your BGG username" name="username" />
+            <TextField
+              placeholder="Your BGG username"
+              {...register("username")}
+            />
             <TextField
               placeholder="Your BGG password"
-              name="password"
+              {...register("password")}
               type="password"
             />
             <Text>The password would never be stored by this service</Text>
