@@ -104,6 +104,6 @@ export interface $9 {
   id: string;
   name: string;
   friendlyname: string;
-  value: number | string;
+  value: string;
   bayesaverage: string;
 }

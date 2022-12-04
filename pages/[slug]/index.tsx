@@ -5,9 +5,10 @@ import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React from "react";
-import { getBggData, PLAYS_ENDPOINT } from "../../bggApis";
+import React, { Fragment } from "react";
+import { getPlays, PLAYS_ENDPOINT } from "../../bggApis";
 import { Plays, PlayerEntity } from "../../bggApis/playsTypes";
+import { Game } from "../../bggApis/types";
 import {
   Button,
   Flex,
@@ -18,6 +19,7 @@ import {
   TextField,
 } from "../../components";
 import { Popup } from "../../components/Dialog";
+import { GameHeader } from "../../components/GameHeader";
 
 const fetcher = (body: {
   sessionCookie: string;
@@ -48,10 +50,11 @@ const onDelete = (body: { sessionCookie: string; playid: string }) => {
 
 const Collection: NextPage<{
   plays: Plays;
+  gameData: Record<string, Game>;
   slug: string;
   sessionCookie: string;
   loggedInUser: string;
-}> = ({ plays, slug, sessionCookie, loggedInUser }) => {
+}> = ({ plays, gameData, slug, sessionCookie, loggedInUser }) => {
   const title = `Plays - ${slug}`;
   const router = useRouter();
   const [isRefreshing, setIsRefreshing] = React.useState(false);
@@ -117,7 +120,7 @@ const Collection: NextPage<{
                     <Text css={{ ml: 2 }}>Ok</Text>
                   </Button>
                 </Popup>
-                {slug === loggedInUser && (
+                {slug.toUpperCase() === loggedInUser.toUpperCase() && (
                   <>
                     <Button
                       onClick={() =>
@@ -152,10 +155,19 @@ const Collection: NextPage<{
             )}
 
             {d.item.map((game) => (
-              <Heading key={game.$.objectid + "c"} variant="h5">
-                {game.$.name}
-                {Number(d.$.quantity) > 1 && <Text> x{d.$.quantity}</Text>}
-              </Heading>
+              <Fragment key={game.$.objectid + "c"}>
+                <GameHeader
+                  rating={
+                    gameData[game.$.objectid].statistics[0].ratings[0].ranks[0]
+                      .rank[0].$.value
+                  }
+                  thumbnail={gameData[game.$.objectid].thumbnail[0]}
+                />
+                <Heading variant="h5">
+                  {game.$.name}
+                  {Number(d.$.quantity) > 1 && <Text> x{d.$.quantity}</Text>}
+                </Heading>
+              </Fragment>
             ))}
             <Flex direction="column" gap="2">
               {d?.players?.map(({ player }) =>
@@ -206,7 +218,10 @@ export const getServerSideProps: GetServerSideProps = async ({
   query,
 }) => {
   const slug = query.slug;
-  const { plays } = await getBggData<{ plays: Plays }>(PLAYS_ENDPOINT + slug);
+  const { plays, gameData } = await getPlays<{
+    plays: Plays;
+    gameData: Record<string, Game>;
+  }>(PLAYS_ENDPOINT + slug);
 
   const cookies = new Cookies(req, res);
   const loggedInUser = cookies.get("bggusername") ?? "";
@@ -215,6 +230,6 @@ export const getServerSideProps: GetServerSideProps = async ({
   sessionCookie += ` SessionID=${cookies.get("SessionID") ?? ""};`;
 
   return {
-    props: { plays, slug, sessionCookie, loggedInUser },
+    props: { plays, slug, sessionCookie, loggedInUser, gameData },
   };
 };

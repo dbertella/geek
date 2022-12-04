@@ -12,6 +12,7 @@ import {
   Layout,
   Text,
 } from "../../components";
+import { GameHeader } from "../../components/GameHeader";
 
 const Collection: NextPage<{
   data: Game[];
@@ -28,22 +29,10 @@ const Collection: NextPage<{
         <Heading>Collection - {slug}</Heading>
         {data.map((d, i) => (
           <Card key={d.$.id + i} css={{ p: "$1", m: "$1" }}>
-            <Flex
-              css={{
-                position: "relative",
-                borderBottom: "1px solid",
-                borderColor: "$gray5",
-                pb: "$1",
-              }}
-              justify="center"
-            >
-              <Box css={{ position: "absolute", top: 0, right: 0 }}>
-                <Text variant="number">
-                  #{d.statistics[0].ratings[0].ranks[0].rank[0].$.value}
-                </Text>
-              </Box>
-              <Image src={d.thumbnail[0]} alt="" />
-            </Flex>
+            <GameHeader
+              rating={d.statistics[0].ratings[0].ranks[0].rank[0].$.value}
+              thumbnail={d.thumbnail[0]}
+            />
             <Heading variant="h3">{d.name[0].$.value}</Heading>
             <Box>
               Avg Rating{" "}
